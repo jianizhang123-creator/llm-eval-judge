@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Eval Judge</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>🔬 LLM Eval Judge</h1>
+        <p>LLM-as-a-Judge Quality Evaluation — Preference vs. Error Classification with Data Flywheel</p>
+    </div>
+    <div class="header-actions">
+        <div class="status-badge"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></div>
+    </div>
+</div>
+
+<div class="main">
+    <!-- Left Panel -->
+    <div class="left-panel">
+        <div class="panel-section">
+            <div class="panel-title">Actions</div>
+            <button class="btn btn-primary" onclick="batchEvaluate()" id="batchBtn">Batch Evaluate All Samples</button>
+            <div style="height:8px"></div>
+            <button class="btn btn-analyze" onclick="analyzePatterns()" id="analyzeBtn">🔍 Analyze Patterns & Get Insights</button>
+        </div>
+        <div class="panel-section">
+            <div class="panel-title">Manual Evaluate</div>
+            <div class="form-group">
+                <label class="form-label">Input Text 原文</label>
+                <input class="form-input" id="manualInput" placeholder="星巴克大杯拿铁 35">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Prediction (JSON)</label>
+                <textarea class="form-textarea" id="manualPred" placeholder='{"amount":35,"category":"餐饮","date":"2026-03-26","merchant":"星巴克"}'></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">User Correction (JSON)</label>
+                <textarea class="form-textarea" id="manualCorr" placeholder='{"category":"咖啡"}'></textarea>
+            </div>
+            <button class="btn btn-secondary" onclick="manualEvaluate()">Evaluate Single</button>
+        </div>
+        <div class="panel-section" style="flex:1">
+            <div class="panel-title">Samples (<span id="sampleCount">0</span>)</div>
+            <div id="sampleList"></div>
+        </div>
+    </div>
+
+    <!-- Center Content -->
+    <div class="center-content" id="centerContent">
+        <div class="welcome" id="welcomeState">
+            <div class="welcome-icon">🔬</div>
+            <h2>LLM Output Quality Evaluation</h2>
+            <p>Click "Batch Evaluate All" to run the AI Judge on all samples, or select individual samples to evaluate. The Judge classifies each user modification as a personal preference or a genuine model error.</p>
+        </div>
+        <div id="resultsArea" style="display:none"></div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+        <div class="dash-section">
+            <div class="dash-title">Quality Dashboard</div>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box"><div class="stat-value" id="statTotal">-</div><div class="stat-label">Evaluated</div></div>
+                <div class="stat-box"><div class="stat-value text-danger" id="statErrors">-</div><div class="stat-label">Errors</div></div>
+                <div class="stat-box"><div class="stat-value text-info" id="statPrefs">-</div><div class="stat-label">Preferences</div></div>
+                <div class="stat-box"><div class="stat-value text-warning" id="statHalluc">-</div><div class="stat-label">Hallucination %</div></div>
+            </div>
+        </div>
+        <div class="dash-section">
+            <div class="dash-title">Accuracy by Field</div>
+            <div id="accBars"></div>
+        </div>
+        <div class="dash-section">
+            <div class="dash-title">Error Type Distribution</div>
+            <div id="errorDist"></div>
+        </div>
+        <div class="dash-section">
+            <div class="dash-title">Error Patterns</div>
+            <div id="patternsPanel"><span style="font-size:11px;color:var(--text-tertiary)">Run "Analyze Patterns" to discover</span></div>
+        </div>
+        <div class="dash-section">
+            <div class="dash-title">Prompt Optimization Insights</div>
+            <div id="insightsPanel"><span style="font-size:11px;color:var(--text-tertiary)">Run analysis to generate insights</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts: load order matters (no build step, vanilla JS) -->
+<script src="/static/js/api.js"></script>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/components/dashboard.js"></script>
+<script src="/static/js/components/sample-panel.js"></script>
+<script src="/static/js/components/eval-results.js"></script>
+</body>
+</html>

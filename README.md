@@ -167,8 +167,62 @@ Covering: correct predictions (no change), preference modifications (finer categ
 |-----------|--------|-----|
 | **AI** | Claude API (Haiku 4.5) | Fast inference for per-sample evaluation at scale |
 | **Backend** | Flask + SSE | Streaming progress for batch operations |
-| **Frontend** | Vanilla HTML/CSS/JS | Zero build step, portfolio-friendly |
+| **Frontend** | Vanilla HTML/CSS/JS | Zero build step, modular components, portfolio-friendly |
 | **Knowledge Base** | JSON file | Structured storage without database overhead |
+| **Testing** | pytest | Unit + integration tests for agents, eval store, and routes |
+
+## Project Structure
+
+```
+llm-eval-judge/
+├── app.py                          # Flask entry point — registers blueprints, serves frontend
+├── config.py                       # Shared constants (model, paths)
+│
+├── agents/                         # 4 evaluation agents, each independently iterable
+│   ├── base.py                     # Claude API calls, JSON parsing, prompt loading
+│   ├── classification.py           # Preference vs Error classification
+│   ├── annotation.py               # Error annotation with root cause analysis
+│   ├── pattern_analysis.py         # Cross-sample error pattern detection
+│   └── prompt_insight.py           # Prompt optimization suggestion generation
+│
+├── prompts/                        # System prompts as standalone markdown (decoupled from code)
+│   ├── classification.md
+│   ├── annotation.md
+│   ├── pattern_analysis.md
+│   └── prompt_insight.md
+│
+├── eval_store/                     # Evaluation data & knowledge base management
+│   ├── store.py                    # JSON persistence (load / save)
+│   └── stats.py                    # Quality metrics calculator (accuracy, distribution, rates)
+│
+├── events/
+│   └── stream.py                   # Server-Sent Events formatting
+│
+├── routes/                         # Flask Blueprints — one per pipeline
+│   ├── evaluate.py                 # POST /api/evaluate (Classification → Annotation)
+│   ├── batch.py                    # POST /api/batch (batch evaluation)
+│   ├── analyze.py                  # POST /api/analyze (Pattern Analysis → Prompt Insight)
+│   └── dashboard.py                # GET /api/presets, /api/dashboard, /api/knowledge
+│
+├── static/                         # Frontend assets
+│   ├── index.html                  # HTML skeleton
+│   ├── css/style.css               # All styles
+│   └── js/
+│       ├── api.js                  # SSE streaming client
+│       ├── app.js                  # State management + initialization
+│       └── components/
+│           ├── sample-panel.js     # Left panel: sample list, single/manual evaluation
+│           ├── eval-results.js     # Center: result cards, batch progress, analysis
+│           └── dashboard.js        # Right panel: quality metrics, patterns, insights
+│
+├── tests/                          # pytest test suite
+│   ├── test_agents.py              # JSON parsing, prompt loading
+│   ├── test_eval_store.py          # Data persistence, stats calculation
+│   └── test_routes.py              # API endpoint integration tests
+│
+└── data/
+    └── eval_data.json              # Runtime persistent state (gitignored)
+```
 
 ## Quick Start
 
@@ -179,7 +233,10 @@ cd llm-eval-judge
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY=your_key_here
 
-python server.py              # → http://localhost:8080
+python app.py                       # → http://localhost:8080
+
+# Run tests
+pytest tests/ -v
 ```
 
 ## Key Design Decisions
